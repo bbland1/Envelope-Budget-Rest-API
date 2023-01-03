@@ -26,7 +26,8 @@ exports.getEnvelopesWithId = async (req, res) => {
 
     // if the envelope doesn't exist send a not found error
     if (!envelope) {
-      res.status(404).send({
+      // ! need to have a return otherwise the server kicks out a ERR_HTTP_HEADERS_SENT error because the header of the call is being changed after is was already set
+      return res.status(404).send({
         message: `Envelope not found.`
       })
     }
@@ -41,6 +42,7 @@ exports.getEnvelopesWithId = async (req, res) => {
   }
 }
 
+//  * function to get the envelope by the name
 exports.getEnvelopesWithName = async (req, res) => {
   try {
     // ! make sure that the params that is being used is specified in the req call, forgot it and spent way too long thinking something else was wrong
@@ -52,7 +54,7 @@ exports.getEnvelopesWithName = async (req, res) => {
 
     // if the envelope doesn't exist send a not found error
     if (!envelope) {
-      res.status(404).send({
+      return res.status(404).send({
         message: `Envelope not found.`
       })
     }
@@ -67,10 +69,11 @@ exports.getEnvelopesWithName = async (req, res) => {
   }
 }
 
+// * add a new envelope
 exports.addEnvelope = async (req, res) => {
   try {
     const { title, budget, saved } = req.body;
-    
+
     const envelopes = await envelopesDB.envelopes;
     // get a created id from the db
     const newId = envelopesDB.newId(envelopes);
@@ -83,7 +86,7 @@ exports.addEnvelope = async (req, res) => {
       budget: parseInt(budget),
       amountSaved: parseInt(saved),
     }
-    
+
     envelopes.push(newEnvelope);
     res.status(201).send(envelopes);
   } catch (err) {
@@ -91,6 +94,7 @@ exports.addEnvelope = async (req, res) => {
   }
 }
 
+// * update the envelope with the id
 exports.updateEnvelopeWithId = async (req, res) => {
   try {
     const envelopeId = req.params.id;
@@ -100,22 +104,60 @@ exports.updateEnvelopeWithId = async (req, res) => {
     const envelope = envelopesDB.findById(envelopes, envelopeId);
 
     if (!envelope) {
-      res.status(404).send({
+      return res.status(404).send({
         message: `Envelope not found.`
       })
     }
 
-    if (typeof parseInt(budget) !== 'number' || typeof parseInt(saved) !== 'number'){
-      res.status(400).send({
-        message: "You didn't enter numbers for either budget or amount saved. Please try again."
+    const budgetNumber = parseInt(budget);
+    const savedNumber = parseInt(saved);
+
+    //  check if the values passed for the numbers are successfully changed to int to go into the db
+    if (typeof savedNumber !== 'number' || typeof budgetNumber !== 'number') {
+      return res.status(400).send({
+        message: `You didn't enter numbers for either budget or amount saved. Please try again.`
       })
     }
-    
-    
+
     envelope.name = title;
-    envelope.budget = parseInt(budget);
-    envelope.amountSaved = parseInt(saved);
-    
+    envelope.budget = budgetNumber;
+    envelope.amountSaved = savedNumber;
+
+    res.status(202).send(envelopes);
+  } catch (err) {
+    res.status(404).send(err)
+  }
+}
+
+// * update the envelope with the name
+exports.updateEnvelopeWithName = async (req, res) => {
+  try {
+    const envelopeName = req.params.name;
+    // ! the name of the parsed info needs to be what is passed in the req it seems. when trying it with dif variable names I kept getting undefined passed info
+    const { title, budget, saved } = req.body;
+    const envelopes = await envelopesDB.envelopes;
+    const envelope = envelopesDB.findByName(envelopes, envelopeName);
+
+    if (!envelope) {
+      return res.status(404).send({
+        message: `Envelope not found.`
+      })
+    }
+
+    const budgetNumber = parseInt(budget);
+    const savedNumber = parseInt(saved);
+
+    //  check if the values passed for the numbers are successfully changed to int to go into the db
+    if (typeof savedNumber !== 'number' || typeof budgetNumber !== 'number') {
+      return res.status(400).send({
+        message: `You didn't enter numbers for either budget or amount saved. Please try again.`
+      })
+    }
+
+    envelope.name = title;
+    envelope.budget = budgetNumber;
+    envelope.amountSaved = savedNumber;
+
     res.status(202).send(envelopes);
   } catch (err) {
     res.status(404).send(err)

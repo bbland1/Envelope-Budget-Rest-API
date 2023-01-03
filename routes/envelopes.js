@@ -19,7 +19,7 @@ router.get('/envelope/:name', envelopeController.getEnvelopesByName);
 // * add an envelope to the db
 router.post('/', envelopeController.addEnvelope);
 
-//  * update envelope with id parameter
+// * update envelope with id parameter
 router.put('/:id', envelopeController.updateEnvelopeById);
 
 // * update envelope with name parameter
@@ -27,5 +27,8 @@ router.put('/envelope/:name', envelopeController.updateEnvelopeByName);
 
 // * delete an envelope with id parameter
 router.delete('/:id', envelopeController.deleteEnvelopeById);
+
+// * delete an envelope with name paramters
+router.delete('/envelope/:name', envelopeController.deleteEnvelopeByName);
 
 module.exports = router;

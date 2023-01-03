@@ -1,4 +1,4 @@
-const {envelopesDB, findById, findByName, newId, deleteById} = require('../db');
+const {envelopesDB, findById, findByName, createNewId, deleteById, deleteByName} = require('../db');
 
 
 //  TODO: add some response codes for letting user know what is going on
@@ -76,7 +76,7 @@ exports.addEnvelope = async (req, res) => {
 
     const envelopes = await envelopesDB;
     // get a created id from the db
-    const newId = newId(envelopes);
+    const newId = createNewId(envelopes);
 
     // pass all the new info
     const newEnvelope = {
@@ -165,6 +165,7 @@ exports.updateEnvelopeByName = async (req, res) => {
   }
 }
 
+// * delete an envelope by the id
 exports.deleteEnvelopeById = async (req, res) => {
   try {
     const envelopeId = req.params.id;
@@ -179,6 +180,27 @@ exports.deleteEnvelopeById = async (req, res) => {
     }
 
     const updatedEnvelopes = deleteById(envelopes, envelopeId);
+    res.status(202).send(updatedEnvelopes);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+// * delete an envelope by name
+exports.deleteEnvelopeByName = async (req, res) => {
+  try {
+    const envelopeName = req.params.name;
+
+    const envelopes = await envelopesDB;
+    const envelope = findByName(envelopes, envelopeName);
+
+    if (!envelope) {
+      return res.status(404).send({
+        message: `Envelope not found.`
+      })
+    }
+
+    const updatedEnvelopes = deleteByName(envelopes, envelopeName);
     res.status(202).send(updatedEnvelopes);
   } catch (err) {
     res.status(500).send(err);

@@ -43,7 +43,7 @@ exports.findByName = (data, dataName) => {
   return dataItem;
 }
 
-exports.newId = (data) => {
+exports.createNewId = (data) => {
   const lastItem = data[data.length - 1];
 
   const newId = lastItem.id + 1;
@@ -53,6 +53,16 @@ exports.newId = (data) => {
 
 exports.deleteById = (data, dataId) => {
   const indexOfItem = data.findIndex(item => item.id === parseInt(dataId));
+
+  if (indexOfItem === -1) {
+    console.log(`No item by that index found to delete`);
+  }
+  data.splice(indexOfItem, 1);
+  return data
+}
+
+exports.deleteByName = (data, dataName) => {
+  const indexOfItem = data.findIndex(item => item.name.toLowerCase() === dataName);
 
   if (indexOfItem === -1) {
     console.log(`No item by that index found to delete`);

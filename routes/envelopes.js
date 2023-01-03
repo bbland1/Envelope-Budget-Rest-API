@@ -21,6 +21,6 @@ router.post('/', envelopeController.addEnvelope);
 
 router.put('/:id', envelopeController.updateEnvelopeWithId);
 
-// router.put('/envelope/:name')
+router.put('/envelope/:name', envelopeController.updateEnvelopeWithName);
 
 module.exports = router;

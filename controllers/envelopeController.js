@@ -90,3 +90,34 @@ exports.addEnvelope = async (req, res) => {
     res.status(500).send(err)
   }
 }
+
+exports.updateEnvelopeWithId = async (req, res) => {
+  try {
+    const envelopeId = req.params.id;
+    // ! the name of the parsed info needs to be what is passed in the req it seems. when trying it with dif variable names I kept getting undefined passed info
+    const { title, budget, saved } = req.body;
+    const envelopes = await envelopesDB.envelopes;
+    const envelope = envelopesDB.findById(envelopes, envelopeId);
+
+    if (!envelope) {
+      res.status(404).send({
+        message: `Envelope not found.`
+      })
+    }
+
+    if (typeof parseInt(budget) !== 'number' || typeof parseInt(saved) !== 'number'){
+      res.status(400).send({
+        message: "You didn't enter numbers for either budget or amount saved. Please try again."
+      })
+    }
+    
+    
+    envelope.name = title;
+    envelope.budget = parseInt(budget);
+    envelope.amountSaved = parseInt(saved);
+    
+    res.status(202).send(envelopes);
+  } catch (err) {
+    res.status(404).send(err)
+  }
+}

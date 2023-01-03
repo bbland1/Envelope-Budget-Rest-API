@@ -11,16 +11,24 @@ router.use(express.urlencoded({ extended: false }));
 router.get('/', envelopeController.getEnvelopes);
 
 // * get a specific envelope using the id parameter
-router.get('/:id', envelopeController.getEnvelopesWithId);
+router.get('/:id', envelopeController.getEnvelopesById);
 
 // * to search for an envelope by name
-router.get('/envelope/:name', envelopeController.getEnvelopesWithName);
+router.get('/envelope/:name', envelopeController.getEnvelopesByName);
 
 // * add an envelope to the db
 router.post('/', envelopeController.addEnvelope);
 
-router.put('/:id', envelopeController.updateEnvelopeWithId);
+// * update envelope with id parameter
+router.put('/:id', envelopeController.updateEnvelopeById);
 
-router.put('/envelope/:name', envelopeController.updateEnvelopeWithName);
+// * update envelope with name parameter
+router.put('/envelope/:name', envelopeController.updateEnvelopeByName);
+
+// * delete an envelope with id parameter
+router.delete('/:id', envelopeController.deleteEnvelopeById);
+
+// * delete an envelope with name paramters
+router.delete('/envelope/:name', envelopeController.deleteEnvelopeByName);
 
 module.exports = router;

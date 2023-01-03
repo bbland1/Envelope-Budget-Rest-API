@@ -19,4 +19,8 @@ router.get('/envelope/:name', envelopeController.getEnvelopesWithName);
 // * add an envelope to the db
 router.post('/', envelopeController.addEnvelope);
 
+router.put('/:id', envelopeController.updateEnvelopeWithId);
+
+// router.put('/envelope/:name')
+
 module.exports = router;

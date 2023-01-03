@@ -1,4 +1,4 @@
-const envelopesDB = require('../db');
+const {envelopesDB, findById, findByName, newId, deleteById} = require('../db');
 
 
 //  TODO: add some response codes for letting user know what is going on
@@ -7,7 +7,7 @@ const envelopesDB = require('../db');
 //  ! this would work for a real db call to catch any errors i believe
 exports.getEnvelopes = async (req, res) => {
   try {
-    const envelopes = await envelopesDB.envelopes
+    const envelopes = await envelopesDB
     res.send(envelopes);
   } catch (err) {
     res.status(400).send(err);
@@ -15,14 +15,14 @@ exports.getEnvelopes = async (req, res) => {
 }
 
 // * function to get a specific envelope
-exports.getEnvelopesWithId = async (req, res) => {
+exports.getEnvelopesById = async (req, res) => {
   try {
     // ! make sure that the params that is being used is specified in the req call, forgot it and spent way too long thinking something else was wrong
     const envelopeId = req.params.id;
 
     // get the db info and use the db function to filter the db for what is being looked for
-    const envelopes = await envelopesDB.envelopes;
-    const envelope = envelopesDB.findById(envelopes, envelopeId);
+    const envelopes = await envelopesDB;
+    const envelope = findById(envelopes, envelopeId);
 
     // if the envelope doesn't exist send a not found error
     if (!envelope) {
@@ -43,14 +43,14 @@ exports.getEnvelopesWithId = async (req, res) => {
 }
 
 //  * function to get the envelope by the name
-exports.getEnvelopesWithName = async (req, res) => {
+exports.getEnvelopesByName = async (req, res) => {
   try {
     // ! make sure that the params that is being used is specified in the req call, forgot it and spent way too long thinking something else was wrong
     const envelopeName = req.params.name;
 
     // get the db info and use the db function to filter the db for what is being looked for
-    const envelopes = await envelopesDB.envelopes;
-    const envelope = envelopesDB.findByName(envelopes, envelopeName);
+    const envelopes = await envelopesDB;
+    const envelope = findByName(envelopes, envelopeName);
 
     // if the envelope doesn't exist send a not found error
     if (!envelope) {
@@ -74,9 +74,9 @@ exports.addEnvelope = async (req, res) => {
   try {
     const { title, budget, saved } = req.body;
 
-    const envelopes = await envelopesDB.envelopes;
+    const envelopes = await envelopesDB;
     // get a created id from the db
-    const newId = envelopesDB.newId(envelopes);
+    const newId = newId(envelopes);
 
     // pass all the new info
     const newEnvelope = {
@@ -90,18 +90,19 @@ exports.addEnvelope = async (req, res) => {
     envelopes.push(newEnvelope);
     res.status(201).send(envelopes);
   } catch (err) {
+    console.error(`There was an issue creating an ID for the envelope. Try again.`)
     res.status(500).send(err)
   }
 }
 
 // * update the envelope with the id
-exports.updateEnvelopeWithId = async (req, res) => {
+exports.updateEnvelopeById = async (req, res) => {
   try {
     const envelopeId = req.params.id;
     // ! the name of the parsed info needs to be what is passed in the req it seems. when trying it with dif variable names I kept getting undefined passed info
     const { title, budget, saved } = req.body;
-    const envelopes = await envelopesDB.envelopes;
-    const envelope = envelopesDB.findById(envelopes, envelopeId);
+    const envelopes = await envelopesDB;
+    const envelope = findById(envelopes, envelopeId);
 
     if (!envelope) {
       return res.status(404).send({
@@ -130,13 +131,13 @@ exports.updateEnvelopeWithId = async (req, res) => {
 }
 
 // * update the envelope with the name
-exports.updateEnvelopeWithName = async (req, res) => {
+exports.updateEnvelopeByName = async (req, res) => {
   try {
     const envelopeName = req.params.name;
     // ! the name of the parsed info needs to be what is passed in the req it seems. when trying it with dif variable names I kept getting undefined passed info
     const { title, budget, saved } = req.body;
-    const envelopes = await envelopesDB.envelopes;
-    const envelope = envelopesDB.findByName(envelopes, envelopeName);
+    const envelopes = await envelopesDB;
+    const envelope = findByName(envelopes, envelopeName);
 
     if (!envelope) {
       return res.status(404).send({
@@ -160,6 +161,26 @@ exports.updateEnvelopeWithName = async (req, res) => {
 
     res.status(202).send(envelopes);
   } catch (err) {
-    res.status(404).send(err)
+    res.status(404).send(err);
+  }
+}
+
+exports.deleteEnvelopeById = async (req, res) => {
+  try {
+    const envelopeId = req.params.id;
+
+    const envelopes = await envelopesDB;
+    const envelope = findById(envelopes, envelopeId);
+
+    if (!envelope) {
+      return res.status(404).send({
+        message: `Envelope not found.`
+      })
+    }
+
+    const updatedEnvelopes = deleteById(envelopes, envelopeId);
+    res.status(202).send(updatedEnvelopes);
+  } catch (err) {
+    res.status(500).send(err);
   }
 }

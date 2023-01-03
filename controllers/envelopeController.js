@@ -1,4 +1,4 @@
-const {envelopesDB, findById, findByName, createNewId, deleteById, deleteByName} = require('../db');
+const { envelopesDB, findById, findByName, createNewId, deleteById, deleteByName } = require('../db');
 
 
 //  TODO: add some response codes for letting user know what is going on
@@ -95,6 +95,49 @@ exports.addEnvelope = async (req, res) => {
   }
 }
 
+// * transfer amount saved from one envelope to another
+exports.transferEnvelopes = async (req, res) => {
+  try {
+    const from = req.params.from;
+    const to = req.params.to;
+
+    const { transfer } = req.body;
+
+    const envelopes = await envelopesDB;
+
+    const fromEnvelope = findByName(envelopes, from);
+    const toEnvelope = findByName(envelopes, to);
+
+    const transferNumber = parseInt(transfer);
+
+    if (!fromEnvelope) {
+      return res.status(404).send({
+        message: `Envelope for ${from} not found.`
+      })
+    }
+
+    if (!toEnvelope) {
+      return res.status(404).send({
+        message: `Envelope for ${to} not found.`
+      })
+    }
+
+    if (typeof transferNumber !== 'number') {
+      return res.status(400).send({
+        message: `You didn't enter a number for the amount to transfer. Please try again.`
+      })
+    }
+
+    fromEnvelope.amountSaved = fromEnvelope.amountSaved - transferNumber;
+    toEnvelope.amountSaved = toEnvelope.amountSaved + transferNumber;
+
+    res.status(202).send(envelopes);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+}
+
+// ? should the update routes have an additional mathematical update instead of just a full reset
 // * update the envelope with the id
 exports.updateEnvelopeById = async (req, res) => {
   try {

@@ -1,4 +1,4 @@
-# Envelope Budget Restful API
+# Envelope Budget Rest API
 
 ![License](https://img.shields.io/github/license/bbland1/CC-Personal-BudgetAPI?style=plastic)
 ![Top Language](https://img.shields.io/github/languages/top/bbland1/CC-Personal-BudgetAPI?style=plastic)
